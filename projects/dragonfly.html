@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dragonfly Mission — Stephen Jenkins</title>
+  <meta name="description" content="Electro-Optical Terrain Sensing Function Lead for NASA's Dragonfly mission to Titan — developing autonomous optical navigation for a rotorcraft on another world.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .mission-content { max-width: 720px; }
+    .mission-content h2 {
+      font-size: 1.4rem; font-weight: 700; color: var(--navy);
+      margin: 2.5rem 0 1rem; letter-spacing: -0.01em;
+    }
+    .mission-content p {
+      font-size: 1rem; color: var(--slate); line-height: 1.8;
+      margin-bottom: 1.25rem;
+    }
+    .mission-content ul {
+      list-style: none; margin: 1rem 0 1.5rem; padding: 0;
+    }
+    .mission-content li {
+      font-size: 0.95rem; color: var(--slate); line-height: 1.7;
+      padding: 0.3rem 0 0.3rem 1.25rem; position: relative;
+    }
+    .mission-content li::before {
+      content: ''; position: absolute; left: 0; top: 0.85rem;
+      width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+    }
+    .mission-sidebar {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1rem; margin: 2.5rem 0;
+    }
+    .mission-fact {
+      padding: 1.25rem; background: var(--light);
+      border-radius: 10px; border: 1px solid var(--border);
+    }
+    .mission-fact-label { font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+    .mission-fact-value { font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-top: 0.25rem; }
+    .pub-card {
+      padding: 1.25rem; background: var(--light);
+      border-radius: 10px; border: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+    .pub-card h4 { font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 0.35rem; }
+    .pub-card p { font-size: 0.85rem; color: var(--muted); margin-bottom: 0; }
+    @media (max-width: 768px) {
+      .mission-sidebar { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">SJ<span>.</span></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#missions">Missions</a></li>
+        <li><a href="../resume.html">Resume</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <section class="demo-hero">
+    <div class="demo-hero-inner">
+      <a href="../index.html#missions" class="back-link">&larr; All Missions</a>
+      <h1>NASA Dragonfly Mission</h1>
+      <p>A rotorcraft lander that will explore Saturn's moon Titan — the only other world in our solar system with liquid on its surface.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-inner">
+      <div class="mission-content">
+
+        <div class="mission-sidebar">
+          <div class="mission-fact">
+            <div class="mission-fact-label">Role</div>
+            <div class="mission-fact-value">Function Lead — Electro-Optical Terrain Sensing</div>
+          </div>
+          <div class="mission-fact">
+            <div class="mission-fact-label">Subsystem</div>
+            <div class="mission-fact-value">Mobility</div>
+          </div>
+          <div class="mission-fact">
+            <div class="mission-fact-label">Target</div>
+            <div class="mission-fact-value">Titan (Saturn's largest moon)</div>
+          </div>
+          <div class="mission-fact">
+            <div class="mission-fact-label">Organization</div>
+            <div class="mission-fact-value">JHU Applied Physics Laboratory</div>
+          </div>
+        </div>
+
+        <h2>The Mission</h2>
+        <p>
+          Dragonfly is a NASA New Frontiers mission that will send an autonomous rotorcraft lander to explore Titan, Saturn's largest moon. Titan has a thick nitrogen atmosphere, weather systems, and vast dune fields — and is one of the most promising places in the solar system to search for prebiotic chemistry and potentially extraterrestrial life.
+        </p>
+        <p>
+          The rotorcraft will hop between locations across Titan's surface, covering tens of kilometers during its multi-year mission. But there's a catch: with a one-way light time of over an hour to Saturn, Dragonfly must navigate autonomously. No GPS, no ground-in-the-loop piloting — the spacecraft needs to know where it is using only what it can see.
+        </p>
+
+        <h2>Electro-Optical Terrain Sensing — My Role</h2>
+        <p>
+          I served as the Electro-Optical Terrain Sensing Function Lead within the Mobility subsystem. My team was responsible for giving Dragonfly the ability to "see" the terrain below and around it during flight, using onboard cameras and image processing to enable autonomous navigation.
+        </p>
+        <p>
+          I led a team of four engineers through the full lifecycle: conceptual development, algorithm design, analysis, implementation in flight software, and early testing — including preliminary flight testing on rotorcraft testbeds.
+        </p>
+
+        <h2>What I Built</h2>
+        <ul>
+          <li>Designed and implemented an image processing algorithm for autonomous onboard optical navigation — enabling the rotorcraft to determine its position and velocity by analyzing terrain features in downward-looking imagery</li>
+          <li>Developed visual odometry capabilities for GPS-denied navigation on Titan's surface, leveraging sequential image pairs to estimate motion</li>
+          <li>Managed the software development lifecycle using agile practices and CI/CD pipelines, delivering multiple tested code releases to the flight software baseline</li>
+          <li>Designed a software/firmware distributed algorithm in collaboration with GN&amp;C, flight software, and firmware teams — optimizing resource utilization on the spacecraft's constrained compute platform while maintaining algorithmic flexibility</li>
+          <li>Contributed to preliminary flight testing of the terrain sensing algorithms on rotorcraft hardware testbeds</li>
+        </ul>
+
+        <h2>The Challenge</h2>
+        <p>
+          Navigating a rotorcraft on another world is an unprecedented engineering challenge. Titan's surface is poorly mapped at the resolution needed for safe flight. The atmosphere is hazy. Compute resources on a space-rated processor are severely limited. And everything must work autonomously — there's no joystick operator, no differential GPS, no backup.
+        </p>
+        <p>
+          Our electro-optical terrain sensing solution had to be robust enough to work in these conditions while fitting within tight computational and power budgets. It was a problem that required deep collaboration across GN&amp;C, software, and hardware teams — exactly the kind of cross-functional challenge I thrive on.
+        </p>
+
+        <h2>Related Publications</h2>
+        <div class="pub-card">
+          <h4>"Preliminary Flight Testing of Dragonfly's Electro-optical Terrain Sensing Function"</h4>
+          <p>Isaac R. Witte, Steve N. Jenkins, Justin R. Thomas, Samuel E. Bibelhauser, Nishant L. Mehta. — 3rd Space Imaging Workshop, Atlanta, Georgia. October 2022.</p>
+        </div>
+        <div class="pub-card">
+          <h4>"No GPS? No Problem! Exploring the Dunes of Titan with Dragonfly Using Visual Odometry"</h4>
+          <p>Isaac R. Witte, Dmitriy L. Bekker, Michelle H. Chen, Thomas B. Criss, Steve N. Jenkins, et al. — AIAA 2019-1177. AIAA SciTech 2019 Forum. January 2019.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>&copy; 2026 Stephen Jenkins</p>
+  </footer>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 10));
+    document.getElementById('navToggle').addEventListener('click', () => document.getElementById('navLinks').classList.toggle('open'));
+  </script>
+</body>
+</html>

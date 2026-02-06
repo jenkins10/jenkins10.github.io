@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DART Mission — Stephen Jenkins</title>
+  <meta name="description" content="Navigation engineer for NASA's DART mission — designing the autonomous optical targeting algorithm that guided the spacecraft to impact asteroid Dimorphos.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .mission-hero-img {
+      width: 100%; max-height: 420px;
+      object-fit: cover; border-radius: 12px;
+      margin-top: 2rem;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+    }
+    .mission-hero-caption {
+      font-size: 0.8rem; color: var(--muted);
+      margin-top: 0.75rem; font-style: italic;
+    }
+    .mission-content { max-width: 720px; }
+    .mission-content h2 {
+      font-size: 1.4rem; font-weight: 700; color: var(--navy);
+      margin: 2.5rem 0 1rem; letter-spacing: -0.01em;
+    }
+    .mission-content p {
+      font-size: 1rem; color: var(--slate); line-height: 1.8;
+      margin-bottom: 1.25rem;
+    }
+    .mission-content ul {
+      list-style: none; margin: 1rem 0 1.5rem; padding: 0;
+    }
+    .mission-content li {
+      font-size: 0.95rem; color: var(--slate); line-height: 1.7;
+      padding: 0.3rem 0 0.3rem 1.25rem; position: relative;
+    }
+    .mission-content li::before {
+      content: ''; position: absolute; left: 0; top: 0.85rem;
+      width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+    }
+    .mission-sidebar {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1rem; margin: 2.5rem 0;
+    }
+    .mission-fact {
+      padding: 1.25rem; background: var(--light);
+      border-radius: 10px; border: 1px solid var(--border);
+    }
+    .mission-fact-label { font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+    .mission-fact-value { font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-top: 0.25rem; }
+    .pub-card {
+      padding: 1.25rem; background: var(--light);
+      border-radius: 10px; border: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+    .pub-card h4 { font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 0.35rem; }
+    .pub-card p { font-size: 0.85rem; color: var(--muted); margin-bottom: 0; }
+    @media (max-width: 768px) {
+      .mission-sidebar { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">SJ<span>.</span></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#missions">Missions</a></li>
+        <li><a href="../resume.html">Resume</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <section class="demo-hero">
+    <div class="demo-hero-inner">
+      <a href="../index.html#missions" class="back-link">&larr; All Missions</a>
+      <h1>NASA DART Mission</h1>
+      <p>Double Asteroid Redirection Test — humanity's first planetary defense technology demonstration.</p>
+      <img src="../assets/dart-moc-web.jpg" alt="DART Mission Operations Center at JHU Applied Physics Laboratory during the Dimorphos impact, September 2022" class="mission-hero-img">
+      <p class="mission-hero-caption">The DART Mission Operations Center at JHU/APL during the final approach to Dimorphos, September 26, 2022.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-inner">
+      <div class="mission-content">
+
+        <div class="mission-sidebar">
+          <div class="mission-fact">
+            <div class="mission-fact-label">Role</div>
+            <div class="mission-fact-value">Navigation Engineer</div>
+          </div>
+          <div class="mission-fact">
+            <div class="mission-fact-label">Subsystem</div>
+            <div class="mission-fact-value">SMART Nav</div>
+          </div>
+          <div class="mission-fact">
+            <div class="mission-fact-label">Impact Date</div>
+            <div class="mission-fact-value">September 26, 2022</div>
+          </div>
+          <div class="mission-fact">
+            <div class="mission-fact-label">Organization</div>
+            <div class="mission-fact-value">JHU Applied Physics Laboratory</div>
+          </div>
+        </div>
+
+        <h2>The Mission</h2>
+        <p>
+          DART (Double Asteroid Redirection Test) was NASA's first planetary defense mission — designed to test whether a kinetic impactor could deflect an asteroid's orbit. The spacecraft intentionally collided with Dimorphos, a 160-meter moonlet orbiting the larger asteroid Didymos, at roughly 6.1 km/s.
+        </p>
+        <p>
+          The mission successfully shortened Dimorphos's orbital period by about 33 minutes, far exceeding the minimum benchmark of 73 seconds and demonstrating that kinetic impact is a viable planetary defense technique.
+        </p>
+
+        <h2>SMART Nav — My Role</h2>
+        <p>
+          I was a navigation engineer on the Small-body Maneuvering Autonomous Real-Time Navigation (SMART Nav) subsystem — the autonomous guidance system responsible for steering DART to its target during the final hours of approach.
+        </p>
+        <p>
+          The core challenge: Dimorphos is tiny (160m across) and initially unresolvable from its parent body Didymos. SMART Nav needed to autonomously detect both bodies in onboard imagery, determine which was the target, and continuously update the spacecraft's trajectory — all without ground-in-the-loop commands due to the light-time delay.
+        </p>
+
+        <h2>What I Built</h2>
+        <p>
+          I designed and implemented the optical targeting algorithm that autonomously discriminated Dimorphos from Didymos in real-time imagery during the terminal approach phase. This involved:
+        </p>
+        <ul>
+          <li>Developing image processing algorithms to detect and resolve two closely-spaced bodies as the spacecraft closed in at 6+ km/s</li>
+          <li>Building the logic to identify which detected body was the target (the smaller moonlet) versus the primary asteroid — a classification problem that evolves rapidly as apparent sizes and separations change</li>
+          <li>Integrating with the broader SMART Nav pipeline to feed targeting solutions into the guidance loop for real-time trajectory corrections</li>
+          <li>Extensive Monte Carlo testing and validation across thousands of approach geometries, lighting conditions, and sensor noise scenarios</li>
+        </ul>
+
+        <h2>Impact</h2>
+        <p>
+          SMART Nav successfully guided DART to impact Dimorphos within 25 meters of the body's center — a remarkable result for an autonomous system navigating at interplanetary speeds. The mission proved that autonomous optical navigation can reliably guide a kinetic impactor to a small-body target, providing a critical capability for future planetary defense scenarios.
+        </p>
+
+        <h2>Related Publications</h2>
+        <div class="pub-card">
+          <h4>"Small-Body Maneuvering Autonomous Real-Time Navigation (SMART Nav): Guiding A Spacecraft to Didymos for NASA's Double Asteroid Redirection Test (DART)"</h4>
+          <p>Chen, M., et al. — Advances in the Astronautical Sciences 164 (2018): 347-359.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>&copy; 2026 Stephen Jenkins</p>
+  </footer>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 10));
+    document.getElementById('navToggle').addEventListener('click', () => document.getElementById('navLinks').classList.toggle('open'));
+  </script>
+</body>
+</html>

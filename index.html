@@ -8,6 +8,35 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    .hero-layout {
+      display: flex; align-items: center; gap: 4rem;
+    }
+    .hero-text { flex: 1; }
+    .hero-photo {
+      flex-shrink: 0;
+    }
+    .hero-photo img {
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--border);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+    }
+    .mission-card-img {
+      width: 100%; height: 200px;
+      object-fit: cover;
+      border-radius: 10px 10px 0 0;
+      margin: -2rem -2rem 1.25rem -2rem;
+      width: calc(100% + 4rem);
+    }
+    @media (max-width: 768px) {
+      .hero-layout { flex-direction: column-reverse; gap: 2rem; text-align: center; }
+      .hero-photo img { width: 180px; height: 180px; }
+      .hero-cta { justify-content: center; }
+      .hero-stats { justify-content: center; }
+    }
+  </style>
 </head>
 <body>
 
@@ -17,7 +46,7 @@
       <a href="index.html" class="nav-logo">SJ<span>.</span></a>
       <ul class="nav-links" id="navLinks">
         <li><a href="#about">About</a></li>
-        <li><a href="#projects">Projects</a></li>
+        <li><a href="#missions">Missions</a></li>
         <li><a href="resume.html">Resume</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
@@ -30,22 +59,29 @@
   <!-- Hero -->
   <section class="hero">
     <div class="hero-inner">
-      <p class="hero-label">Spacecraft Navigation Engineer</p>
-      <h1>I build the systems that<br>guide spacecraft to&nbsp;their&nbsp;targets.</h1>
-      <p class="hero-subtitle">
-        10+ years designing autonomous optical navigation and state estimation algorithms
-        for NASA deep-space missions — from steering DART into an asteroid to navigating
-        Dragonfly across the dunes of Titan.
-      </p>
-      <div class="hero-cta">
-        <a href="#projects" class="btn btn-primary">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-          View Projects
-        </a>
-        <a href="assets/Jenkins_Resume.pdf" class="btn btn-outline" target="_blank">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          Download Resume
-        </a>
+      <div class="hero-layout">
+        <div class="hero-text">
+          <p class="hero-label">Spacecraft Navigation Engineer</p>
+          <h1>I build the systems that<br>guide spacecraft to&nbsp;their&nbsp;targets.</h1>
+          <p class="hero-subtitle">
+            10+ years designing autonomous optical navigation and state estimation algorithms
+            for NASA deep-space missions — from steering DART into an asteroid to navigating
+            Dragonfly across the dunes of Titan.
+          </p>
+          <div class="hero-cta">
+            <a href="#missions" class="btn btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+              View Missions
+            </a>
+            <a href="assets/Jenkins_Resume.pdf" class="btn btn-outline" target="_blank">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              Download Resume
+            </a>
+          </div>
+        </div>
+        <div class="hero-photo">
+          <img src="assets/headshot.jpeg" alt="Stephen Jenkins">
+        </div>
       </div>
       <div class="hero-stats">
         <div>
@@ -72,42 +108,66 @@
   <section class="section section-alt" id="about">
     <div class="section-inner">
       <p class="section-label">Background</p>
-      <h2 class="section-title">Missions &amp; Experience</h2>
-      <p class="section-desc">
-        Specialized in autonomous onboard navigation systems — from concept through flight.
-        I bridge the gap between GN&amp;C algorithms and production flight software.
+      <h2 class="section-title">About Me</h2>
+      <p class="section-desc" style="max-width: 760px;">
+        I specialize in autonomous onboard navigation systems — taking concepts from the whiteboard
+        through analysis, implementation, and flight. I bridge the gap between GN&amp;C algorithms
+        and production flight software, and I love leading small teams to solve hard problems
+        in deep space.
       </p>
-      <div class="missions">
-        <div class="mission-card fade-in">
-          <div class="mission-card-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+    </div>
+  </section>
+
+  <!-- Mission Pages -->
+  <section class="section" id="missions">
+    <div class="section-inner">
+      <p class="section-label">Mission Experience</p>
+      <h2 class="section-title">NASA Missions</h2>
+      <p class="section-desc">
+        Hands-on experience designing and flying autonomous navigation systems on two of NASA's most ambitious missions.
+      </p>
+      <div class="projects-grid">
+        <!-- DART -->
+        <a href="projects/dart.html" class="project-card fade-in" style="text-decoration:none; color:inherit;">
+          <div class="project-card-preview" style="padding:0; height: auto;">
+            <img src="assets/dart-moc-web.jpg" alt="DART Mission Operations Center at JHU/APL" style="width:100%; height:220px; object-fit:cover; display:block;">
           </div>
-          <h3>NASA DART Mission</h3>
-          <p>Navigation engineer for SMART Nav — the autonomous system that guided the spacecraft to impact asteroid Dimorphos in September 2022. Designed the optical targeting algorithm to discriminate Dimorphos from Didymos in real-time imagery.</p>
-          <span class="mission-card-tag">Optical Navigation • Autonomous Targeting</span>
-        </div>
-        <div class="mission-card fade-in">
-          <div class="mission-card-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+          <div class="project-card-body">
+            <h3>NASA DART Mission</h3>
+            <p>Navigation engineer for SMART Nav — the autonomous system that guided the spacecraft to impact asteroid Dimorphos in September 2022. Designed the optical targeting algorithm for real-time target discrimination.</p>
+            <div class="project-tags">
+              <span class="project-tag">Optical Navigation</span>
+              <span class="project-tag">Autonomous Targeting</span>
+              <span class="project-tag">Flight Software</span>
+            </div>
+            <span class="project-link">Read More</span>
           </div>
-          <h3>NASA Dragonfly Mission</h3>
-          <p>Electro-Optical Terrain Sensing Function Lead for the Mobility subsystem. Led a team through conceptual development, analysis, implementation, and testing of onboard optical navigation for a rotorcraft exploring Titan.</p>
-          <span class="mission-card-tag">Image Processing • Team Lead • Flight Software</span>
-        </div>
-        <div class="mission-card fade-in">
-          <div class="mission-card-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </a>
+        <!-- Dragonfly -->
+        <a href="projects/dragonfly.html" class="project-card fade-in" style="text-decoration:none; color:inherit;">
+          <div class="project-card-preview" style="background: linear-gradient(135deg, #1a2332, #2a1f0f); display:flex; align-items:center; justify-content:center; height:220px;">
+            <div style="text-align:center; color: rgba(255,255,255,0.7); padding: 2rem;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.6;"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+              <div style="font-size: 0.8rem; margin-top: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;">Titan Awaits — 2028</div>
+            </div>
           </div>
-          <h3>Autonomous Station Keeping</h3>
-          <p>Principal Investigator designing onboard guidance and navigation algorithms for station-keeping in chaotic dynamical environments. Architected a modular software framework for mission concept analysis.</p>
-          <span class="mission-card-tag">GN&amp;C • PI • Software Architecture</span>
-        </div>
+          <div class="project-card-body">
+            <h3>NASA Dragonfly Mission</h3>
+            <p>Electro-Optical Terrain Sensing Function Lead for the Mobility subsystem. Led a team developing onboard optical navigation for an autonomous rotorcraft exploring Saturn's moon Titan.</p>
+            <div class="project-tags">
+              <span class="project-tag">Image Processing</span>
+              <span class="project-tag">Team Lead</span>
+              <span class="project-tag">Visual Odometry</span>
+            </div>
+            <span class="project-link">Read More</span>
+          </div>
+        </a>
       </div>
     </div>
   </section>
 
   <!-- Skills -->
-  <section class="section">
+  <section class="section section-alt">
     <div class="section-inner">
       <p class="section-label">Technical Expertise</p>
       <h2 class="section-title">Skills &amp; Tools</h2>
@@ -156,68 +216,6 @@
     </div>
   </section>
 
-  <!-- Projects -->
-  <section class="section section-alt" id="projects">
-    <div class="section-inner">
-      <p class="section-label">Portfolio</p>
-      <h2 class="section-title">Interactive Demos</h2>
-      <p class="section-desc">
-        Hands-on demonstrations of core aerospace navigation concepts — state estimation,
-        optical image processing, and Monte Carlo error analysis.
-      </p>
-      <div class="projects-grid">
-        <!-- Kalman Filter -->
-        <a href="projects/kalman-filter.html" class="project-card fade-in" style="text-decoration:none; color:inherit;">
-          <div class="project-card-preview" id="kalmanPreview" style="background: linear-gradient(135deg, #1a2332, #1e3a5f);display:flex;align-items:center;justify-content:center;">
-            <canvas id="kalmanMini" width="400" height="200"></canvas>
-          </div>
-          <div class="project-card-body">
-            <h3>Extended Kalman Filter</h3>
-            <p>Interactive state estimation demo tracking a maneuvering object. Tune filter parameters in real-time and watch predicted vs. measured vs. filtered states evolve.</p>
-            <div class="project-tags">
-              <span class="project-tag">State Estimation</span>
-              <span class="project-tag">EKF</span>
-              <span class="project-tag">Real-time</span>
-            </div>
-            <span class="project-link">Launch Demo</span>
-          </div>
-        </a>
-        <!-- Optical Nav -->
-        <a href="projects/optical-nav.html" class="project-card fade-in" style="text-decoration:none; color:inherit;">
-          <div class="project-card-preview" style="background: linear-gradient(135deg, #0f1923, #1a2332);display:flex;align-items:center;justify-content:center;">
-            <canvas id="optnavMini" width="400" height="200"></canvas>
-          </div>
-          <div class="project-card-body">
-            <h3>Optical Navigation Pipeline</h3>
-            <p>Simulated image processing pipeline: star field generation, target body detection, centroiding algorithms, and autonomous discrimination — inspired by DART's SMART Nav.</p>
-            <div class="project-tags">
-              <span class="project-tag">Image Processing</span>
-              <span class="project-tag">OpNav</span>
-              <span class="project-tag">Centroiding</span>
-            </div>
-            <span class="project-link">Launch Demo</span>
-          </div>
-        </a>
-        <!-- Monte Carlo -->
-        <a href="projects/monte-carlo.html" class="project-card fade-in" style="text-decoration:none; color:inherit;">
-          <div class="project-card-preview" style="background: linear-gradient(135deg, #1a2332, #2c1a3d);display:flex;align-items:center;justify-content:center;">
-            <canvas id="mcMini" width="400" height="200"></canvas>
-          </div>
-          <div class="project-card-body">
-            <h3>Monte Carlo Nav Analysis</h3>
-            <p>Run thousands of navigation error simulations with configurable sensor noise and dynamics. Visualize covariance ellipses, error distributions, and statistical convergence.</p>
-            <div class="project-tags">
-              <span class="project-tag">Monte Carlo</span>
-              <span class="project-tag">Covariance</span>
-              <span class="project-tag">Statistics</span>
-            </div>
-            <span class="project-link">Launch Demo</span>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-
   <!-- Contact -->
   <section class="section" id="contact">
     <div class="section-inner">
@@ -246,13 +244,13 @@
             <div class="contact-info-value">Denver Metro, CO</div>
           </div>
         </div>
-        <a href="https://github.com/stevejenkins" class="contact-card" style="text-decoration:none;color:inherit;">
+        <a href="https://github.com/jenkins10" class="contact-card" style="text-decoration:none;color:inherit;">
           <div class="contact-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
           </div>
           <div>
             <div class="contact-info-label">GitHub</div>
-            <div class="contact-info-value">github.com/stevejenkins</div>
+            <div class="contact-info-value">github.com/jenkins10</div>
           </div>
         </a>
       </div>
@@ -266,99 +264,15 @@
 
   <!-- Scripts -->
   <script>
-    // Nav scroll effect
     const nav = document.getElementById('nav');
-    window.addEventListener('scroll', () => {
-      nav.classList.toggle('scrolled', window.scrollY > 10);
-    });
-
-    // Mobile nav toggle
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 10));
     const navToggle = document.getElementById('navToggle');
     const navLinks = document.getElementById('navLinks');
     navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
-
-    // Scroll-triggered fade-in
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
     }, { threshold: 0.1 });
     document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-
-    // --- Mini preview canvases ---
-    // Kalman preview
-    (function() {
-      const c = document.getElementById('kalmanMini');
-      if (!c) return;
-      const ctx = c.getContext('2d');
-      let t = 0;
-      function draw() {
-        ctx.fillStyle = 'rgba(26,35,50,0.15)';
-        ctx.fillRect(0, 0, 400, 200);
-        const x = 50 + t * 1.5;
-        const yTrue = 100 + 30 * Math.sin(t * 0.04);
-        // Noisy measurement
-        const yMeas = yTrue + (Math.random() - 0.5) * 40;
-        ctx.fillStyle = 'rgba(255,255,255,0.3)';
-        ctx.beginPath(); ctx.arc(x % 400, yMeas, 2, 0, Math.PI * 2); ctx.fill();
-        // Filtered
-        ctx.fillStyle = '#2c6fbb';
-        ctx.beginPath(); ctx.arc(x % 400, yTrue + (Math.random() - 0.5) * 8, 3, 0, Math.PI * 2); ctx.fill();
-        t++;
-        if (t < 600) requestAnimationFrame(draw);
-      }
-      draw();
-    })();
-
-    // Optical nav preview (stars + target)
-    (function() {
-      const c = document.getElementById('optnavMini');
-      if (!c) return;
-      const ctx = c.getContext('2d');
-      // Stars
-      for (let i = 0; i < 80; i++) {
-        const x = Math.random() * 400, y = Math.random() * 200;
-        const b = 0.3 + Math.random() * 0.7;
-        ctx.fillStyle = `rgba(255,255,255,${b})`;
-        ctx.beginPath(); ctx.arc(x, y, 0.5 + Math.random(), 0, Math.PI * 2); ctx.fill();
-      }
-      // Target body
-      const grd = ctx.createRadialGradient(200, 100, 5, 200, 100, 30);
-      grd.addColorStop(0, 'rgba(180,160,140,0.9)');
-      grd.addColorStop(1, 'rgba(180,160,140,0)');
-      ctx.fillStyle = grd;
-      ctx.beginPath(); ctx.arc(200, 100, 30, 0, Math.PI * 2); ctx.fill();
-      // Crosshair
-      ctx.strokeStyle = 'rgba(44,111,187,0.6)';
-      ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(185, 100); ctx.lineTo(215, 100); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(200, 85); ctx.lineTo(200, 115); ctx.stroke();
-      ctx.strokeStyle = 'rgba(44,111,187,0.3)';
-      ctx.beginPath(); ctx.arc(200, 100, 20, 0, Math.PI * 2); ctx.stroke();
-    })();
-
-    // Monte Carlo preview (scatter)
-    (function() {
-      const c = document.getElementById('mcMini');
-      if (!c) return;
-      const ctx = c.getContext('2d');
-      function boxMuller() {
-        let u = 0, v = 0;
-        while (u === 0) u = Math.random();
-        while (v === 0) v = Math.random();
-        return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-      }
-      for (let i = 0; i < 300; i++) {
-        const x = 200 + boxMuller() * 40;
-        const y = 100 + boxMuller() * 25;
-        ctx.fillStyle = `rgba(44,111,187,${0.15 + Math.random() * 0.3})`;
-        ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2); ctx.fill();
-      }
-      // Ellipse
-      ctx.strokeStyle = 'rgba(44,111,187,0.5)';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.ellipse(200, 100, 60, 38, 0, 0, Math.PI * 2); ctx.stroke();
-      ctx.strokeStyle = 'rgba(44,111,187,0.25)';
-      ctx.beginPath(); ctx.ellipse(200, 100, 100, 60, 0, 0, Math.PI * 2); ctx.stroke();
-    })();
   </script>
 </body>
 </html>
