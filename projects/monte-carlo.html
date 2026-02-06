@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monte Carlo Navigation Error Analysis — Stephen Jenkins</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Additional Monte Carlo specific styles */
+        .mc-container {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .mc-canvas-wrapper {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .mc-canvas-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .mc-canvas-box {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .mc-timeseries {
+            margin-top: 1.5rem;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .mc-timeseries-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .mc-controls-section {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .mc-controls-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mc-controls-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .mc-button-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .mc-btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1.5px solid var(--border);
+            background: var(--white);
+            color: var(--slate);
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: var(--font);
+        }
+
+        .mc-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .mc-btn.active, .mc-btn-primary {
+            background: var(--accent);
+            color: var(--white);
+            border-color: var(--accent);
+        }
+
+        .mc-btn-primary:hover {
+            background: #1d5a9e;
+        }
+
+        .mc-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .mc-slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .mc-slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--slate);
+        }
+
+        .mc-slider-label .label-text {
+            font-weight: 500;
+        }
+
+        .mc-slider-label .value-display {
+            font-family: var(--mono);
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 5px;
+            border-radius: 2px;
+            background: var(--border);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(44, 111, 187, 0.3);
+            transition: all var(--transition);
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            box-shadow: 0 2px 12px rgba(44, 111, 187, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(44, 111, 187, 0.3);
+            transition: all var(--transition);
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            box-shadow: 0 2px 12px rgba(44, 111, 187, 0.5);
+        }
+
+        .mc-checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .mc-checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--slate);
+            cursor: pointer;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+
+        .mc-stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--light);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .mc-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .mc-stat-value {
+            font-family: var(--mono);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .mc-stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .mc-content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .mc-content-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all var(--transition);
+        }
+
+        .mc-content-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+        }
+
+        .mc-content-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 1rem;
+        }
+
+        .mc-content-card p {
+            font-size: 0.9rem;
+            color: var(--slate);
+            line-height: 1.7;
+            margin-bottom: 0.75rem;
+        }
+
+        .mc-content-card p:last-child {
+            margin-bottom: 0;
+        }
+
+        .mc-equation {
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            background: var(--light);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            margin: 1rem 0;
+            color: var(--navy);
+            line-height: 1.6;
+        }
+
+        .mc-equation-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .mc-container {
+                flex-direction: column;
+            }
+
+            .mc-canvas-wrapper {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mc-controls-row {
+                grid-template-columns: 1fr;
+            }
+
+            .mc-stats-panel {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .demo-section {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="nav-logo">SJ<span>.</span></div>
+            <ul class="nav-links">
+                <li><a href="../index.html#about">About</a></li>
+                <li><a href="../index.html#projects">Projects</a></li>
+                <li><a href="../resume.html">Resume</a></li>
+                <li><a href="../index.html#contact">Contact</a></li>
+            </ul>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="demo-hero">
+        <div class="demo-hero-inner">
+            <a href="../index.html#projects" class="back-link">← Back to Projects</a>
+            <h1>Monte Carlo Navigation Error Analysis</h1>
+            <p>Interactive simulation of spacecraft navigation uncertainty. Explore how process noise, measurement noise, and systematic bias propagate through a navigation filter.</p>
+        </div>
+    </section>
+
+    <!-- Main Demo Section -->
+    <section class="demo-section">
+        <div class="demo-inner">
+            <!-- Live Statistics Panel -->
+            <div class="mc-stats-panel">
+                <div class="mc-stat">
+                    <div class="mc-stat-value" id="stat-trials">0 / 1000</div>
+                    <div class="mc-stat-label">Trials Completed</div>
+                </div>
+                <div class="mc-stat">
+                    <div class="mc-stat-value" id="stat-mean">—</div>
+                    <div class="mc-stat-label">Mean Position Error (m)</div>
+                </div>
+                <div class="mc-stat">
+                    <div class="mc-stat-value" id="stat-1sigma">—</div>
+                    <div class="mc-stat-label">1-σ Uncertainty (m)</div>
+                </div>
+                <div class="mc-stat">
+                    <div class="mc-stat-value" id="stat-3sigma">—</div>
+                    <div class="mc-stat-label">3-σ Uncertainty (m)</div>
+                </div>
+                <div class="mc-stat">
+                    <div class="mc-stat-value" id="stat-99pct">—</div>
+                    <div class="mc-stat-label">99th Percentile (m)</div>
+                </div>
+                <div class="mc-stat">
+                    <div class="mc-stat-value" id="stat-cep">—</div>
+                    <div class="mc-stat-label">CEP (m)</div>
+                </div>
+            </div>
+
+            <!-- Controls Section -->
+            <div class="mc-controls-section">
+                <div class="mc-controls-row">
+                    <div class="mc-slider-group">
+                        <div class="mc-slider-label">
+                            <span class="label-text">Number of Trials</span>
+                            <span class="value-display" id="label-trials">1000</span>
+                        </div>
+                        <input type="range" id="slider-trials" min="100" max="10000" step="100" value="1000">
+                    </div>
+                    <div class="mc-slider-group">
+                        <div class="mc-slider-label">
+                            <span class="label-text">Process Noise σ</span>
+                            <span class="value-display" id="label-process">15.0 m</span>
+                        </div>
+                        <input type="range" id="slider-process" min="1" max="100" step="0.5" value="15">
+                    </div>
+                    <div class="mc-slider-group">
+                        <div class="mc-slider-label">
+                            <span class="label-text">Measurement Noise σ</span>
+                            <span class="value-display" id="label-measurement">20.0 m</span>
+                        </div>
+                        <input type="range" id="slider-measurement" min="1" max="100" step="0.5" value="20">
+                    </div>
+                </div>
+
+                <div class="mc-controls-row">
+                    <div class="mc-slider-group">
+                        <div class="mc-slider-label">
+                            <span class="label-text">Simulation Speed</span>
+                            <span class="value-display" id="label-speed">1x</span>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="mc-btn" data-speed="1">1x</button>
+                            <button class="mc-btn" data-speed="5">5x</button>
+                            <button class="mc-btn" data-speed="20">20x</button>
+                        </div>
+                    </div>
+                    <div class="mc-checkbox-group">
+                        <label>
+                            <input type="checkbox" id="toggle-bias" value="bias">
+                            Enable Systematic Bias
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mc-controls-row" id="bias-slider-container" style="display: none;">
+                    <div class="mc-slider-group">
+                        <div class="mc-slider-label">
+                            <span class="label-text">Bias Magnitude</span>
+                            <span class="value-display" id="label-bias">5.0 m</span>
+                        </div>
+                        <input type="range" id="slider-bias" min="0" max="50" step="0.5" value="5">
+                    </div>
+                </div>
+
+                <div class="mc-controls-row">
+                    <div class="mc-button-group">
+                        <button class="mc-btn mc-btn-primary" id="btn-run">▶ Run</button>
+                        <button class="mc-btn" id="btn-pause" disabled>⏸ Pause</button>
+                        <button class="mc-btn" id="btn-reset">↻ Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Visualizations -->
+            <div class="mc-container">
+                <div class="mc-canvas-wrapper">
+                    <div class="mc-canvas-label">Position Error Scatter</div>
+                    <div class="mc-canvas-box">
+                        <canvas id="canvas-scatter" width="600" height="450"></canvas>
+                    </div>
+                </div>
+                <div class="mc-canvas-wrapper">
+                    <div class="mc-canvas-label">Error Distribution</div>
+                    <div class="mc-canvas-box">
+                        <canvas id="canvas-histogram" width="600" height="450" style="background: white;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time Series Chart -->
+            <div>
+                <div class="mc-timeseries-label">Position Error Time Series</div>
+                <div class="mc-timeseries">
+                    <canvas id="canvas-timeseries" width="1200" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Educational Content -->
+    <section class="demo-section" style="background: var(--light);">
+        <div class="demo-inner">
+            <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--navy); margin-bottom: 0.5rem;">Understanding Monte Carlo Analysis</h2>
+            <p style="font-size: 1.05rem; color: var(--slate); max-width: 680px; margin-bottom: 2rem;">Monte Carlo simulation is a fundamental technique in aerospace navigation. It's used to verify that a navigation system will meet mission requirements by analyzing how uncertainties propagate through a navigation filter.</p>
+
+            <div class="mc-content-grid">
+                <div class="mc-content-card">
+                    <h3>What Is Monte Carlo Analysis?</h3>
+                    <p>Monte Carlo simulation runs thousands of scenarios with random variations in sensor noise and modeling errors. Each scenario represents one possible mission trajectory. By analyzing the distribution of errors across all scenarios, engineers verify that the navigation system will consistently deliver the accuracy required by mission objectives.</p>
+                    <p>The technique is named after the famous casino—like games of chance, we're using random sampling to estimate statistical properties that would be difficult to compute analytically.</p>
+                </div>
+
+                <div class="mc-content-card">
+                    <h3>Navigation Error Sources</h3>
+                    <p><strong>Process Noise:</strong> Uncertainty in the spacecraft dynamics model. The spacecraft doesn't follow its predicted path exactly due to unmodeled forces, orbital perturbations, and thruster uncertainties.</p>
+                    <p><strong>Measurement Noise:</strong> Uncertainty in sensor measurements (e.g., radio frequency Doppler, optical star tracker). Sensors have inherent precision limits.</p>
+                    <p><strong>Systematic Bias:</strong> Persistent errors that don't average out, such as calibration errors or environmental gradients.</p>
+                </div>
+
+                <div class="mc-content-card">
+                    <h3>Covariance & Confidence Ellipses</h3>
+                    <p>The sample covariance matrix P describes the spread of position errors:</p>
+                    <div class="mc-equation">
+                        <div class="mc-equation-title">Covariance Matrix</div>
+                        P = (1/N) × Σ(x - μ)(x - μ)ᵀ
+                    </div>
+                    <p>The 1σ, 2σ, and 3σ confidence ellipses are derived from the eigenvalues and eigenvectors of P. They represent regions containing 39%, 86%, and 99% of errors respectively.</p>
+                </div>
+
+                <div class="mc-content-card">
+                    <h3>Circular Error Probable (CEP)</h3>
+                    <p>CEP is the radius of a circle containing 50% of position errors. It's more intuitive than covariance metrics for mission planning:</p>
+                    <div class="mc-equation">
+                        <div class="mc-equation-title">CEP Approximation</div>
+                        CEP ≈ 0.589 × √(σ_x² + σ_y²)
+                    </div>
+                    <p>For a 2D Gaussian error distribution, CEP provides a single number that mission planners can use to verify landing site safety and vehicle placement accuracy.</p>
+                </div>
+
+                <div class="mc-content-card">
+                    <h3>Rayleigh Distribution</h3>
+                    <p>Position error magnitude (RSS of x and y components) follows a Rayleigh distribution. The histogram overlay shows how well your Monte Carlo samples match the analytical distribution. Good agreement validates your navigation model assumptions.</p>
+                    <div class="mc-equation">
+                        <div class="mc-equation-title">Rayleigh PDF</div>
+                        p(r) = (r/σ²) × exp(-r²/2σ²)
+                    </div>
+                </div>
+
+                <div class="mc-content-card">
+                    <h3>Mission Design Application</h3>
+                    <p>Navigation error budgets are created using Monte Carlo analysis. If the 3σ position uncertainty exceeds the landing site safety margin, engineers must:</p>
+                    <ul style="margin: 1rem 0; padding-left: 1.5rem; font-size: 0.9rem; color: var(--slate); line-height: 1.6;">
+                        <li>Improve sensors (reduce measurement noise)</li>
+                        <li>Better model dynamics (reduce process noise)</li>
+                        <li>Add more navigation observations</li>
+                        <li>Implement bias calibration procedures</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 Stephen Jenkins. Spacecraft Navigation Engineering.</p>
+    </footer>
+
+    <script>
+        // ========================================
+        // Monte Carlo Navigation Error Analysis
+        // ========================================
+
+        class MonteCarloSimulation {
+            constructor() {
+                this.trials = 1000;
+                this.processNoise = 15; // meters
+                this.measurementNoise = 20; // meters
+                this.biasEnabled = false;
+                this.biasAmount = 5; // meters
+                this.speedMultiplier = 1;
+
+                this.isRunning = false;
+                this.isPaused = false;
+                this.currentTrial = 0;
+
+                this.errors = []; // [{dx, dy, magnitude}, ...]
+                this.running = false;
+
+                this.initializeCanvases();
+                this.setupEventListeners();
+                this.updateLabels();
+            }
+
+            initializeCanvases() {
+                this.canvasScatter = document.getElementById('canvas-scatter');
+                this.ctxScatter = this.canvasScatter.getContext('2d');
+
+                this.canvasHistogram = document.getElementById('canvas-histogram');
+                this.ctxHistogram = this.canvasHistogram.getContext('2d');
+
+                this.canvasTimeseries = document.getElementById('canvas-timeseries');
+                this.ctxTimeseries = this.canvasTimeseries.getContext('2d');
+
+                this.dpiScale = window.devicePixelRatio || 1;
+                this.scaleCanvases();
+            }
+
+            scaleCanvases() {
+                // Scale for high DPI displays
+                [this.canvasScatter, this.canvasHistogram, this.canvasTimeseries].forEach(canvas => {
+                    const rect = canvas.getBoundingClientRect();
+                    canvas.width = rect.width * this.dpiScale;
+                    canvas.height = rect.height * this.dpiScale;
+                    const ctx = canvas.getContext('2d');
+                    ctx.scale(this.dpiScale, this.dpiScale);
+                });
+            }
+
+            setupEventListeners() {
+                document.getElementById('slider-trials').addEventListener('input', (e) => {
+                    this.trials = parseInt(e.target.value);
+                    document.getElementById('label-trials').textContent = this.trials.toLocaleString();
+                    this.reset();
+                });
+
+                document.getElementById('slider-process').addEventListener('input', (e) => {
+                    this.processNoise = parseFloat(e.target.value);
+                    document.getElementById('label-process').textContent = this.processNoise.toFixed(1) + ' m';
+                });
+
+                document.getElementById('slider-measurement').addEventListener('input', (e) => {
+                    this.measurementNoise = parseFloat(e.target.value);
+                    document.getElementById('label-measurement').textContent = this.measurementNoise.toFixed(1) + ' m';
+                });
+
+                document.getElementById('slider-bias').addEventListener('input', (e) => {
+                    this.biasAmount = parseFloat(e.target.value);
+                    document.getElementById('label-bias').textContent = this.biasAmount.toFixed(1) + ' m';
+                });
+
+                document.getElementById('toggle-bias').addEventListener('change', (e) => {
+                    this.biasEnabled = e.target.checked;
+                    document.getElementById('bias-slider-container').style.display =
+                        this.biasEnabled ? 'grid' : 'none';
+                });
+
+                // Speed buttons
+                document.querySelectorAll('[data-speed]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('[data-speed]').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.speedMultiplier = parseInt(e.target.dataset.speed);
+                        document.getElementById('label-speed').textContent = this.speedMultiplier + 'x';
+                    });
+                });
+
+                // Control buttons
+                document.getElementById('btn-run').addEventListener('click', () => this.run());
+                document.getElementById('btn-pause').addEventListener('click', () => this.pause());
+                document.getElementById('btn-reset').addEventListener('click', () => this.reset());
+
+                // Set initial speed button
+                document.querySelector('[data-speed="1"]').classList.add('active');
+            }
+
+            updateLabels() {
+                document.getElementById('label-trials').textContent = this.trials.toLocaleString();
+                document.getElementById('label-process').textContent = this.processNoise.toFixed(1) + ' m';
+                document.getElementById('label-measurement').textContent = this.measurementNoise.toFixed(1) + ' m';
+            }
+
+            generateTrial() {
+                // Process noise (random walk): represents unmodeled dynamics
+                const dx_process = this.processNoise * this.gaussianRandom();
+                const dy_process = this.processNoise * this.gaussianRandom();
+
+                // Measurement noise: represents sensor uncertainty
+                const dx_meas = this.measurementNoise * this.gaussianRandom();
+                const dy_meas = this.measurementNoise * this.gaussianRandom();
+
+                // Systematic bias (if enabled)
+                const dx_bias = this.biasEnabled ? this.biasAmount : 0;
+                const dy_bias = this.biasEnabled ? this.biasAmount * this.gaussianRandom() : 0;
+
+                // Total error
+                const dx = dx_process + dx_meas + dx_bias;
+                const dy = dy_process + dy_meas + dy_bias;
+                const magnitude = Math.sqrt(dx * dx + dy * dy);
+
+                return { dx, dy, magnitude, index: this.currentTrial };
+            }
+
+            gaussianRandom() {
+                // Box-Muller transform
+                let u1 = 0, u2 = 0;
+                while (u1 === 0) u1 = Math.random();
+                while (u2 === 0) u2 = Math.random();
+                return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+            }
+
+            run() {
+                if (this.isRunning) {
+                    this.isPaused = !this.isPaused;
+                    document.getElementById('btn-run').textContent = this.isPaused ? '▶ Resume' : '⏸ Pause';
+                    document.getElementById('btn-pause').disabled = this.isPaused;
+                    return;
+                }
+
+                this.isRunning = true;
+                document.getElementById('btn-run').textContent = '⏸ Pause';
+                document.getElementById('btn-pause').disabled = false;
+                document.getElementById('btn-reset').disabled = true;
+                document.getElementById('slider-trials').disabled = true;
+
+                this.simulationLoop();
+            }
+
+            pause() {
+                this.isPaused = true;
+                document.getElementById('btn-run').textContent = '▶ Resume';
+            }
+
+            reset() {
+                this.isRunning = false;
+                this.isPaused = false;
+                this.currentTrial = 0;
+                this.errors = [];
+
+                document.getElementById('btn-run').textContent = '▶ Run';
+                document.getElementById('btn-pause').disabled = true;
+                document.getElementById('btn-reset').disabled = false;
+                document.getElementById('slider-trials').disabled = false;
+
+                this.updateStats();
+                this.draw();
+            }
+
+            simulationLoop() {
+                const startTime = performance.now();
+                const trialsPerFrame = Math.max(1, Math.floor(this.speedMultiplier * 5));
+
+                const animate = () => {
+                    if (!this.isRunning) return;
+                    if (this.isPaused) {
+                        requestAnimationFrame(animate);
+                        return;
+                    }
+
+                    // Run trials
+                    for (let i = 0; i < trialsPerFrame && this.currentTrial < this.trials; i++) {
+                        this.errors.push(this.generateTrial());
+                        this.currentTrial++;
+                    }
+
+                    // Update display
+                    this.updateStats();
+                    this.draw();
+
+                    if (this.currentTrial >= this.trials) {
+                        this.isRunning = false;
+                        document.getElementById('btn-run').textContent = '▶ Run';
+                        document.getElementById('btn-pause').disabled = true;
+                        document.getElementById('btn-reset').disabled = false;
+                        document.getElementById('slider-trials').disabled = false;
+                    } else {
+                        requestAnimationFrame(animate);
+                    }
+                };
+
+                animate();
+            }
+
+            updateStats() {
+                if (this.errors.length === 0) {
+                    document.getElementById('stat-trials').textContent = `0 / ${this.trials.toLocaleString()}`;
+                    document.getElementById('stat-mean').textContent = '—';
+                    document.getElementById('stat-1sigma').textContent = '—';
+                    document.getElementById('stat-3sigma').textContent = '—';
+                    document.getElementById('stat-99pct').textContent = '—';
+                    document.getElementById('stat-cep').textContent = '—';
+                    return;
+                }
+
+                // Basic stats
+                const n = this.errors.length;
+                const meanMagnitude = this.errors.reduce((sum, e) => sum + e.magnitude, 0) / n;
+
+                const variance = this.errors.reduce((sum, e) => sum + (e.magnitude - meanMagnitude) ** 2, 0) / n;
+                const stdDev = Math.sqrt(variance);
+
+                // Sorted magnitudes for percentiles
+                const sorted = [...this.errors].map(e => e.magnitude).sort((a, b) => a - b);
+                const p99 = sorted[Math.floor(n * 0.99)];
+
+                // Calculate covariance matrix for ellipse
+                const meanDx = this.errors.reduce((sum, e) => sum + e.dx, 0) / n;
+                const meanDy = this.errors.reduce((sum, e) => sum + e.dy, 0) / n;
+
+                const cov_xx = this.errors.reduce((sum, e) => sum + (e.dx - meanDx) ** 2, 0) / n;
+                const cov_yy = this.errors.reduce((sum, e) => sum + (e.dy - meanDy) ** 2, 0) / n;
+                const cov_xy = this.errors.reduce((sum, e) => sum + (e.dx - meanDx) * (e.dy - meanDy), 0) / n;
+
+                // Eigenvalues of covariance matrix
+                const trace = cov_xx + cov_yy;
+                const det = cov_xx * cov_yy - cov_xy * cov_xy;
+                const lambda1 = (trace + Math.sqrt(trace * trace - 4 * det)) / 2;
+                const lambda2 = (trace - Math.sqrt(trace * trace - 4 * det)) / 2;
+
+                const sigma1 = Math.sqrt(lambda1);
+                const sigma2 = Math.sqrt(lambda2);
+
+                // CEP calculation
+                const cep = 0.589 * Math.sqrt(cov_xx + cov_yy);
+
+                // Update display
+                document.getElementById('stat-trials').textContent =
+                    `${this.currentTrial.toLocaleString()} / ${this.trials.toLocaleString()}`;
+                document.getElementById('stat-mean').textContent = meanMagnitude.toFixed(1);
+                document.getElementById('stat-1sigma').textContent = sigma1.toFixed(1);
+                document.getElementById('stat-3sigma').textContent = (3 * sigma1).toFixed(1);
+                document.getElementById('stat-99pct').textContent = p99.toFixed(1);
+                document.getElementById('stat-cep').textContent = cep.toFixed(1);
+
+                // Store for drawing
+                this.stats = {
+                    meanDx, meanDy, cov_xx, cov_yy, cov_xy,
+                    sigma1, sigma2, lambda1, lambda2, cep,
+                    meanMagnitude, stdDev
+                };
+            }
+
+            draw() {
+                this.drawScatter();
+                this.drawHistogram();
+                this.drawTimeseries();
+            }
+
+            drawScatter() {
+                const ctx = this.ctxScatter;
+                const w = this.canvasScatter.width / this.dpiScale;
+                const h = this.canvasScatter.height / this.dpiScale;
+                const margin = 50;
+                const plotW = w - 2 * margin;
+                const plotH = h - 2 * margin;
+
+                // Clear and background
+                ctx.fillStyle = '#1a2332';
+                ctx.fillRect(0, 0, w, h);
+
+                // Grid
+                ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+                ctx.lineWidth = 0.5;
+                for (let i = 0; i <= 5; i++) {
+                    const x = margin + (i / 5) * plotW;
+                    const y = margin + (i / 5) * plotH;
+                    ctx.beginPath();
+                    ctx.moveTo(x, margin);
+                    ctx.lineTo(x, h - margin);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(margin, y);
+                    ctx.lineTo(w - margin, y);
+                    ctx.stroke();
+                }
+
+                // Calculate scale
+                let maxError = 100;
+                if (this.errors.length > 0) {
+                    maxError = Math.max(...this.errors.map(e => Math.max(Math.abs(e.dx), Math.abs(e.dy)))) * 1.2;
+                    maxError = Math.max(maxError, 50);
+                }
+
+                const scale = plotW / (2 * maxError);
+
+                // Draw scatter points with color gradient
+                this.errors.forEach((error, idx) => {
+                    const x = margin + plotW / 2 + error.dx * scale;
+                    const y = margin + plotH / 2 - error.dy * scale;
+
+                    // Color gradient from blue to orange
+                    const t = idx / Math.max(1, this.errors.length - 1);
+                    const hue = (1 - t) * 210 + t * 30; // blue to orange
+                    ctx.fillStyle = `hsl(${hue}, 70%, 50%)`;
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, 2, 0, 2 * Math.PI);
+                    ctx.fill();
+                });
+
+                // Draw confidence ellipses if we have stats
+                if (this.stats && this.errors.length > 10) {
+                    const centerX = margin + plotW / 2;
+                    const centerY = margin + plotH / 2;
+
+                    // Calculate angle from eigenvector
+                    const v1x = 1, v1y = this.stats.cov_xy / (this.stats.lambda1 - this.stats.cov_xx + 1e-10);
+                    const angle = Math.atan2(v1y, v1x);
+
+                    // Draw 1σ, 2σ, 3σ ellipses
+                    const sigmas = [1, 2, 3];
+                    const colors = ['rgba(100, 200, 255, 0.3)', 'rgba(100, 150, 255, 0.2)', 'rgba(100, 100, 255, 0.1)'];
+
+                    sigmas.forEach((s, idx) => {
+                        ctx.strokeStyle = colors[idx];
+                        ctx.lineWidth = 1.5;
+                        ctx.fillStyle = 'transparent';
+
+                        const a = s * this.stats.sigma1 * scale;
+                        const b = s * this.stats.sigma2 * scale;
+
+                        ctx.save();
+                        ctx.translate(centerX, centerY);
+                        ctx.rotate(angle);
+                        ctx.beginPath();
+                        ctx.ellipse(0, 0, a, b, 0, 0, 2 * Math.PI);
+                        ctx.stroke();
+                        ctx.restore();
+                    });
+                }
+
+                // Draw mean crosshair
+                if (this.stats) {
+                    const cx = margin + plotW / 2 + this.stats.meanDx * scale;
+                    const cy = margin + plotH / 2 - this.stats.meanDy * scale;
+                    ctx.strokeStyle = '#FFD700';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([2, 2]);
+                    ctx.beginPath();
+                    ctx.moveTo(cx - 15, cy);
+                    ctx.lineTo(cx + 15, cy);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy - 15);
+                    ctx.lineTo(cx, cy + 15);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
+                // Axes
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(margin, margin + plotH / 2);
+                ctx.lineTo(w - margin, margin + plotH / 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(margin + plotW / 2, margin);
+                ctx.lineTo(margin + plotW / 2, h - margin);
+                ctx.stroke();
+
+                // Labels
+                ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                ctx.font = '11px "JetBrains Mono"';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(`±${maxError.toFixed(0)} m`, margin + plotW / 2, margin - 30);
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`±${maxError.toFixed(0)} m`, margin - 30, margin + plotH / 2);
+
+                // Axis labels
+                ctx.font = 'bold 12px "Inter"';
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText('Position Error (m)', w / 2, h - 15);
+            }
+
+            drawHistogram() {
+                const ctx = this.ctxHistogram;
+                const w = this.canvasHistogram.width / this.dpiScale;
+                const h = this.canvasHistogram.height / this.dpiScale;
+                const margin = 50;
+                const plotW = w - 2 * margin;
+                const plotH = h - 2 * margin;
+
+                // Clear
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, w, h);
+
+                // Draw grid
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 0.5;
+                for (let i = 0; i <= 5; i++) {
+                    const y = margin + (i / 5) * plotH;
+                    ctx.beginPath();
+                    ctx.moveTo(margin, y);
+                    ctx.lineTo(w - margin, y);
+                    ctx.stroke();
+                }
+
+                // Create histogram
+                if (this.errors.length === 0) {
+                    // Draw empty placeholder
+                    ctx.fillStyle = '#ccc';
+                    ctx.font = '12px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('No data yet', w / 2, h / 2);
+                    return;
+                }
+
+                const maxMag = Math.max(...this.errors.map(e => e.magnitude));
+                const bins = 30;
+                const binWidth = maxMag / bins;
+                const histogram = new Array(bins).fill(0);
+
+                this.errors.forEach(e => {
+                    const binIdx = Math.min(bins - 1, Math.floor(e.magnitude / binWidth));
+                    histogram[binIdx]++;
+                });
+
+                const maxCount = Math.max(...histogram);
+                const barW = plotW / bins;
+
+                // Draw histogram bars
+                ctx.fillStyle = '#2c6fbb';
+                histogram.forEach((count, i) => {
+                    const barH = (count / maxCount) * plotH;
+                    const x = margin + i * barW;
+                    const y = margin + plotH - barH;
+                    ctx.fillRect(x, y, barW - 1, barH);
+                });
+
+                // Draw Rayleigh distribution overlay
+                if (this.errors.length > 20 && this.stats) {
+                    ctx.strokeStyle = '#FF6B35';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+
+                    const sigma = Math.sqrt(this.stats.cov_xx + this.stats.cov_yy) / 2;
+
+                    for (let i = 0; i <= bins; i++) {
+                        const r = (i / bins) * maxMag;
+                        // Rayleigh PDF
+                        const pdf = (r / (sigma * sigma)) * Math.exp(-(r * r) / (2 * sigma * sigma));
+                        const pdfScaled = pdf * maxCount * binWidth;
+
+                        const x = margin + i * barW;
+                        const y = margin + plotH - pdfScaled;
+
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    }
+                    ctx.stroke();
+                }
+
+                // Draw sigma lines
+                if (this.stats) {
+                    const sigmaLines = [
+                        { label: '1σ', val: this.stats.meanMagnitude + this.stats.stdDev, color: '#4CAF50' },
+                        { label: '2σ', val: this.stats.meanMagnitude + 2 * this.stats.stdDev, color: '#FFC107' },
+                        { label: '3σ', val: this.stats.meanMagnitude + 3 * this.stats.stdDev, color: '#F44336' }
+                    ];
+
+                    sigmaLines.forEach(line => {
+                        const x = margin + (line.val / maxMag) * plotW;
+                        ctx.strokeStyle = line.color;
+                        ctx.lineWidth = 1.5;
+                        ctx.setLineDash([3, 3]);
+                        ctx.beginPath();
+                        ctx.moveTo(x, margin);
+                        ctx.lineTo(x, margin + plotH);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                    });
+                }
+
+                // Axes
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(margin, margin + plotH);
+                ctx.lineTo(w - margin, margin + plotH);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(margin, margin);
+                ctx.lineTo(margin, margin + plotH);
+                ctx.stroke();
+
+                // Labels
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 12px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText('Position Error Magnitude (m)', w / 2, h - 15);
+                ctx.save();
+                ctx.translate(15, h / 2);
+                ctx.rotate(-Math.PI / 2);
+                ctx.textAlign = 'center';
+                ctx.fillText('Count', 0, 0);
+                ctx.restore();
+            }
+
+            drawTimeseries() {
+                const ctx = this.ctxTimeseries;
+                const w = this.canvasTimeseries.width / this.dpiScale;
+                const h = this.canvasTimeseries.height / this.dpiScale;
+                const margin = 50;
+                const plotW = w - 2 * margin;
+                const plotH = h - 2 * margin;
+
+                // Clear
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, w, h);
+
+                // Grid
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 0.5;
+                for (let i = 0; i <= 5; i++) {
+                    const x = margin + (i / 5) * plotW;
+                    const y = margin + (i / 5) * plotH;
+                    ctx.beginPath();
+                    ctx.moveTo(x, margin);
+                    ctx.lineTo(x, margin + plotH);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(margin, y);
+                    ctx.lineTo(w - margin, y);
+                    ctx.stroke();
+                }
+
+                if (this.errors.length === 0) {
+                    ctx.fillStyle = '#ccc';
+                    ctx.font = '12px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('No data yet', w / 2, h / 2);
+                    return;
+                }
+
+                // Calculate max error for scale
+                const maxErr = Math.max(...this.errors.map(e => e.magnitude)) * 1.1;
+                const scale = plotH / maxErr;
+
+                // Draw error points
+                ctx.strokeStyle = '#2c6fbb';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                this.errors.forEach((error, i) => {
+                    const x = margin + (i / Math.max(1, this.errors.length - 1)) * plotW;
+                    const y = margin + plotH - error.magnitude * scale;
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                });
+                ctx.stroke();
+
+                // Draw running average
+                if (this.errors.length > 5) {
+                    const windowSize = Math.max(10, Math.floor(this.errors.length / 20));
+                    ctx.strokeStyle = '#FF6B35';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+
+                    for (let i = windowSize; i < this.errors.length; i++) {
+                        const start = Math.max(0, i - windowSize);
+                        const avg = this.errors.slice(start, i + 1)
+                            .reduce((sum, e) => sum + e.magnitude, 0) / (i - start + 1);
+                        const x = margin + (i / (this.errors.length - 1)) * plotW;
+                        const y = margin + plotH - avg * scale;
+
+                        if (i === windowSize) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    }
+                    ctx.stroke();
+                }
+
+                // Draw 3-sigma bound
+                if (this.stats) {
+                    ctx.strokeStyle = 'rgba(244, 67, 54, 0.3)';
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([3, 3]);
+                    const bound = (this.stats.meanMagnitude + 3 * this.stats.stdDev) * scale;
+                    ctx.beginPath();
+                    ctx.moveTo(margin, margin + plotH - bound);
+                    ctx.lineTo(w - margin, margin + plotH - bound);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
+                // Axes
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(margin, margin + plotH);
+                ctx.lineTo(w - margin, margin + plotH);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(margin, margin);
+                ctx.lineTo(margin, margin + plotH);
+                ctx.stroke();
+
+                // Labels
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 12px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText('Trial Number', w / 2, h - 15);
+                ctx.save();
+                ctx.translate(15, h / 2);
+                ctx.rotate(-Math.PI / 2);
+                ctx.textAlign = 'center';
+                ctx.fillText('Position Error (m)', 0, 0);
+                ctx.restore();
+            }
+        }
+
+        // Initialize simulation when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            window.simulation = new MonteCarloSimulation();
+            window.simulation.draw();
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.simulation) {
+                window.simulation.scaleCanvases();
+                window.simulation.draw();
+            }
+        });
+    </script>
+</body>
+</html>

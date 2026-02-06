@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Extended Kalman Filter Demo — Stephen Jenkins</title>
+  <meta name="description" content="Interactive Extended Kalman Filter demo showcasing spacecraft state estimation and optical navigation concepts.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* EKF-specific demo enhancements */
+    .demo-canvas-wrapper {
+      position: relative;
+      width: 100%;
+      height: 500px;
+      background: var(--navy);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .demo-canvas-wrapper canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .demo-legend {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      padding: 1rem;
+      background: var(--light);
+      border-radius: 8px;
+    }
+
+    .demo-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .demo-legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .demo-legend-dash {
+      width: 20px;
+      height: 2px;
+      background: white;
+      border-radius: 1px;
+      flex-shrink: 0;
+      border: 1px dashed rgba(255, 255, 255, 0.5);
+    }
+
+    .demo-controls-group {
+      background: var(--light);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .demo-controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .demo-slider-container {
+      flex: 1;
+    }
+
+    .demo-button-group {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .demo-toggle-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .demo-stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .demo-stat-item {
+      padding: 1rem;
+      background: var(--white);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .demo-stat-item-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .demo-stat-item-value {
+      font-family: var(--mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .demo-stat-item-unit {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+      font-weight: 500;
+    }
+
+    .demo-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .demo-info-card-extended {
+      padding: 1.5rem;
+      background: var(--light);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .demo-info-card-extended h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 1rem;
+    }
+
+    .demo-info-card-extended p {
+      font-size: 0.9rem;
+      color: var(--slate);
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+    }
+
+    .demo-info-card-extended p:last-child {
+      margin-bottom: 0;
+    }
+
+    .demo-equation-block {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      background: var(--white);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+      margin: 1rem 0;
+      color: var(--navy);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .emphasis {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .covariance-viz {
+      width: 40px;
+      height: 40px;
+      margin: 0.25rem 0;
+      border-radius: 4px;
+      display: inline-block;
+      background: linear-gradient(135deg, rgba(44, 111, 187, 0.3), rgba(44, 111, 187, 0.7));
+      border: 1px solid var(--accent);
+    }
+
+    @media (max-width: 768px) {
+      .demo-canvas-wrapper {
+        height: 350px;
+      }
+
+      .demo-controls-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .demo-legend {
+        gap: 1rem;
+      }
+
+      .demo-info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">SJ<span>.</span></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#projects">Projects</a></li>
+        <li><a href="../resume.html">Resume</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Demo Hero -->
+  <section class="demo-hero">
+    <div class="demo-hero-inner">
+      <a href="../index.html#projects" class="back-link">← Back to projects</a>
+      <h1>Extended Kalman Filter</h1>
+      <p>
+        An interactive visualization of state estimation for maneuvering targets. This demonstrates the core algorithms
+        used in spacecraft optical navigation systems: the predict-update cycle, covariance propagation, and optimal
+        measurement integration. Watch how the filter estimates position and velocity from noisy observations.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main Demo Section -->
+  <section class="demo-section">
+    <div class="demo-inner">
+
+      <!-- Canvas -->
+      <div class="demo-canvas-wrapper">
+        <canvas id="ekfCanvas"></canvas>
+      </div>
+
+      <!-- Legend -->
+      <div class="demo-legend">
+        <div class="demo-legend-item">
+          <div class="demo-legend-color" style="background: rgba(200, 200, 200, 0.8);"></div>
+          <span>True State (dashed)</span>
+        </div>
+        <div class="demo-legend-item">
+          <div class="demo-legend-color" style="background: #ff6b6b;"></div>
+          <span>Measurements (dots)</span>
+        </div>
+        <div class="demo-legend-item">
+          <div class="demo-legend-color" style="background: #2c6fbb;"></div>
+          <span>EKF Estimate (solid)</span>
+        </div>
+        <div class="demo-legend-item">
+          <div class="demo-legend-color" style="background: rgba(44, 111, 187, 0.2); border: 1px solid #2c6fbb;"></div>
+          <span>Covariance Ellipse</span>
+        </div>
+      </div>
+
+      <!-- Controls Group -->
+      <div class="demo-controls-group">
+        <div class="demo-controls-grid">
+
+          <!-- Process Noise -->
+          <div class="demo-slider-container">
+            <div class="demo-slider-group">
+              <div class="demo-slider-label">
+                <span>Process Noise (Q)</span>
+                <span id="qValue">0.10</span>
+              </div>
+              <input type="range" id="qSlider" min="0.01" max="0.5" step="0.01" value="0.1">
+              <p style="font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem;">
+                Controls trust in dynamics model. Higher = more model uncertainty.
+              </p>
+            </div>
+          </div>
+
+          <!-- Measurement Noise -->
+          <div class="demo-slider-container">
+            <div class="demo-slider-group">
+              <div class="demo-slider-label">
+                <span>Measurement Noise (R)</span>
+                <span id="rValue">0.50</span>
+              </div>
+              <input type="range" id="rSlider" min="0.1" max="2.0" step="0.1" value="0.5">
+              <p style="font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem;">
+                Controls trust in sensor observations. Higher = more sensor noise.
+              </p>
+            </div>
+          </div>
+
+          <!-- Measurement Rate -->
+          <div class="demo-slider-container">
+            <div class="demo-slider-group">
+              <div class="demo-slider-label">
+                <span>Measurement Rate</span>
+                <span id="rateValue">50 Hz</span>
+              </div>
+              <input type="range" id="rateSlider" min="10" max="100" step="10" value="50">
+              <p style="font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem;">
+                How often sensor observations arrive (Hz).
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Buttons -->
+        <div class="demo-button-group">
+          <button class="demo-btn" id="playBtn">Play</button>
+          <button class="demo-btn" id="pauseBtn">Pause</button>
+          <button class="demo-btn" id="resetBtn">Reset</button>
+        </div>
+
+        <!-- Toggle Visibility -->
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+          <p style="font-size: 0.85rem; font-weight: 600; color: var(--navy); margin-bottom: 0.75rem;">Toggle visibility:</p>
+          <div class="demo-toggle-buttons">
+            <button class="demo-btn active" id="toggleTrue" data-layer="true">True Path</button>
+            <button class="demo-btn active" id="toggleMeas" data-layer="measurements">Measurements</button>
+            <button class="demo-btn active" id="toggleEst" data-layer="estimate">EKF Estimate</button>
+            <button class="demo-btn active" id="toggleCov" data-layer="covariance">Covariance</button>
+          </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="demo-stats-row">
+          <div class="demo-stat-item">
+            <div class="demo-stat-item-label">Position RMS Error</div>
+            <div class="demo-stat-item-value" id="posError">0.00</div>
+            <div class="demo-stat-item-unit">pixels</div>
+          </div>
+          <div class="demo-stat-item">
+            <div class="demo-stat-item-label">Velocity RMS Error</div>
+            <div class="demo-stat-item-value" id="velError">0.00</div>
+            <div class="demo-stat-item-unit">px/frame</div>
+          </div>
+          <div class="demo-stat-item">
+            <div class="demo-stat-item-label">Kalman Gain Norm</div>
+            <div class="demo-stat-item-value" id="kalmanGain">0.00</div>
+            <div class="demo-stat-item-unit">||K||</div>
+          </div>
+          <div class="demo-stat-item">
+            <div class="demo-stat-item-label">Innovation Magnitude</div>
+            <div class="demo-stat-item-value" id="innovation">0.00</div>
+            <div class="demo-stat-item-unit">measurement units</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Educational Content -->
+  <section class="demo-section" style="background: var(--light);">
+    <div class="demo-inner">
+
+      <div class="demo-info-grid">
+
+        <!-- How It Works -->
+        <div class="demo-info-card-extended">
+          <h3>How It Works: The Predict-Update Cycle</h3>
+          <p>
+            The Extended Kalman Filter operates in two phases each timestep:
+          </p>
+          <p>
+            <strong>Predict Phase:</strong> Using a dynamics model, we project the state forward.
+            The covariance grows due to model uncertainty (process noise Q).
+          </p>
+          <p>
+            <strong>Update Phase:</strong> When a measurement arrives, we compute how well it
+            matches our prediction. The Kalman gain determines the optimal blend between prediction
+            and measurement, updating both state and covariance.
+          </p>
+          <p>
+            This balance is the key insight: trust the model, but also trust observations. The
+            filter is <span class="emphasis">optimal for linear systems</span> with Gaussian noise.
+          </p>
+        </div>
+
+        <!-- The Math -->
+        <div class="demo-info-card-extended">
+          <h3>The Mathematics</h3>
+          <div class="demo-equation-block">Predict:
+x_k = F·x_{k-1} + w_k
+P_k = F·P_{k-1}·F^T + Q
+
+Update:
+K_k = P_k·H^T·(H·P_k·H^T + R)^{-1}
+x_k = x_k + K_k·(z_k - H·x_k)
+P_k = (I - K_k·H)·P_k
+
+State: [x, y, v_x, v_y]^T
+F: constant velocity model
+H: position measurement operator
+Q: process noise covariance
+R: measurement noise covariance</div>
+        </div>
+
+        <!-- Why It Matters -->
+        <div class="demo-info-card-extended">
+          <h3>Why It Matters for Spacecraft</h3>
+          <p>
+            Spacecraft operate far from Earth with limited communication windows and no ground control.
+            They must determine their position and velocity using onboard sensors—usually optical images
+            of stars and planets.
+          </p>
+          <p>
+            The EKF is the workhorse of autonomous spacecraft navigation. It combines:
+          </p>
+          <p>
+            • Orbit propagation models (dynamics)<br>
+            • Camera observations (measurements)<br>
+            • Sensor uncertainty quantification (covariance)
+          </p>
+          <p>
+            For DART's SMART Nav and Dragonfly's optical navigation systems, the EKF enables real-time
+            state estimation without ground intervention—essential for terminal guidance and autonomous
+            mobility.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2024 Stephen Jenkins. Extended Kalman Filter implementation. <a href="../index.html#contact">Get in touch</a>.</p>
+  </footer>
+
+  <script>
+    /**
+     * Extended Kalman Filter Demo
+     * Real EKF implementation with visualization
+     *
+     * State: [x, y, v_x, v_y]
+     * Dynamics: constant velocity model with process noise
+     * Measurements: position only with measurement noise
+     */
+
+    // ============================================
+    // Configuration & Global State
+    // ============================================
+    const config = {
+      canvas: document.getElementById('ekfCanvas'),
+      width: 0,
+      height: 500,
+      dt: 0.016, // 60 FPS
+      running: true,
+      time: 0,
+      Q: 0.1,      // Process noise
+      R: 0.5,      // Measurement noise
+      measurementRate: 50, // Hz
+      visibility: {
+        true: true,
+        measurements: true,
+        estimate: true,
+        covariance: true
+      }
+    };
+
+    const state = {
+      trueState: [250, 200, 0.5, 0.3],          // [x, y, v_x, v_y]
+      ekfState: [250, 200, 0.5, 0.3],
+      ekfCovariance: [
+        [5, 0, 0, 0],
+        [0, 5, 0, 0],
+        [0, 0, 0.1, 0],
+        [0, 0, 0, 0.1]
+      ],
+      trueHistory: [],
+      measurementHistory: [],
+      estimateHistory: [],
+      covarianceHistory: [],
+      lastMeasurementTime: 0,
+      posError: 0,
+      velError: 0,
+      kalmanGainNorm: 0,
+      innovation: 0
+    };
+
+    // ============================================
+    // Matrix Operations (Minimal Implementation)
+    // ============================================
+
+    function matmul(A, B) {
+      const result = [];
+      for (let i = 0; i < A.length; i++) {
+        result[i] = [];
+        for (let j = 0; j < B[0].length; j++) {
+          let sum = 0;
+          for (let k = 0; k < B.length; k++) {
+            sum += A[i][k] * B[k][j];
+          }
+          result[i][j] = sum;
+        }
+      }
+      return result;
+    }
+
+    function matmul_scalar(A, scalar) {
+      return A.map(row => row.map(val => val * scalar));
+    }
+
+    function matadd(A, B) {
+      return A.map((row, i) => row.map((val, j) => val + B[i][j]));
+    }
+
+    function matsub(A, B) {
+      return A.map((row, i) => row.map((val, j) => val - B[i][j]));
+    }
+
+    function mattranspose(A) {
+      const result = [];
+      for (let j = 0; j < A[0].length; j++) {
+        result[j] = [];
+        for (let i = 0; i < A.length; i++) {
+          result[j][i] = A[i][j];
+        }
+      }
+      return result;
+    }
+
+    function mat_inv_2x2(M) {
+      const det = M[0][0] * M[1][1] - M[0][1] * M[1][0];
+      if (Math.abs(det) < 1e-10) return [[1, 0], [0, 1]];
+      const invDet = 1.0 / det;
+      return [
+        [M[1][1] * invDet, -M[0][1] * invDet],
+        [-M[1][0] * invDet, M[0][0] * invDet]
+      ];
+    }
+
+    function vec_norm(v) {
+      return Math.sqrt(v.reduce((sum, x) => sum + x * x, 0));
+    }
+
+    // ============================================
+    // Dynamics Model
+    // ============================================
+
+    function getF() {
+      return [
+        [1, 0, config.dt, 0],
+        [0, 1, 0, config.dt],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]
+      ];
+    }
+
+    function getQ() {
+      const scale = config.Q * config.Q;
+      return [
+        [scale, 0, 0, 0],
+        [0, scale, 0, 0],
+        [0, 0, scale * 0.1, 0],
+        [0, 0, 0, scale * 0.1]
+      ];
+    }
+
+    function getR() {
+      return [
+        [config.R * config.R, 0],
+        [0, config.R * config.R]
+      ];
+    }
+
+    function getH() {
+      return [
+        [1, 0, 0, 0],
+        [0, 1, 0, 0]
+      ];
+    }
+
+    // ============================================
+    // Target Dynamics (Maneuvering Target)
+    // ============================================
+
+    function updateTrueState() {
+      const x = state.trueState;
+      const t = config.time;
+
+      // Constant velocity base motion
+      x[0] += x[2] * config.dt;
+      x[1] += x[3] * config.dt;
+
+      // Add sinusoidal perturbation
+      const freqX = 0.5;
+      const freqY = 0.3;
+      const ampX = 0.05;
+      const ampY = 0.03;
+
+      x[2] += ampX * Math.cos(freqX * t) * config.dt;
+      x[3] += ampY * Math.sin(freqY * t) * config.dt;
+
+      // Occasional random maneuvers
+      if (Math.sin(t * 0.5) > 0.95) {
+        x[2] += (Math.random() - 0.5) * 0.02;
+        x[3] += (Math.random() - 0.5) * 0.02;
+      }
+
+      // Bounds checking
+      const margin = 50;
+      if (x[0] < margin || x[0] > config.width - margin) x[2] *= -0.8;
+      if (x[1] < margin || x[1] > config.height - margin) x[3] *= -0.8;
+      x[0] = Math.max(margin, Math.min(config.width - margin, x[0]));
+      x[1] = Math.max(margin, Math.min(config.height - margin, x[1]));
+    }
+
+    // ============================================
+    // Extended Kalman Filter
+    // ============================================
+
+    function predictEKF() {
+      const F = getF();
+      const Q = getQ();
+      const x = state.ekfState;
+      const P = state.ekfCovariance;
+
+      // x_pred = F * x
+      const xPred = matmul(F, x.map(v => [v])).map(row => row[0]);
+
+      // P_pred = F * P * F^T + Q
+      const FPFt = matmul(matmul(F, P), mattranspose(F));
+      const PPred = matadd(FPFt, Q);
+
+      state.ekfState = xPred;
+      state.ekfCovariance = PPred;
+    }
+
+    function updateEKF(z) {
+      const H = getH();
+      const R = getR();
+      const x = state.ekfState;
+      const P = state.ekfCovariance;
+
+      // Innovation: z_k - H * x_k
+      const Hx = matmul(H, x.map(v => [v])).map(row => row[0]);
+      const innovation = [z[0] - Hx[0], z[1] - Hx[1]];
+      state.innovation = vec_norm(innovation);
+
+      // Innovation covariance: S = H * P * H^T + R
+      const HPHt = matmul(matmul(H, P), mattranspose(H));
+      const S = matadd(HPHt, R);
+
+      // Kalman gain: K = P * H^T * S^{-1}
+      const Ht = mattranspose(H);
+      const SInv = mat_inv_2x2(S);
+      const PHt = matmul(P, Ht);
+      const K = matmul(PHt, SInv);
+      state.kalmanGainNorm = vec_norm(K.flat());
+
+      // State update: x = x + K * innovation
+      const K_innov = matmul(K, innovation.map(v => [v])).map(row => row[0]);
+      const xUpdated = x.map((v, i) => v + K_innov[i]);
+
+      // Covariance update: P = (I - K*H) * P
+      const KH = matmul(K, H);
+      const I_KH = [
+        [1 - KH[0][0], -KH[0][1], -KH[0][2], -KH[0][3]],
+        [-KH[1][0], 1 - KH[1][1], -KH[1][2], -KH[1][3]],
+        [-KH[2][0], -KH[2][1], 1 - KH[2][2], -KH[2][3]],
+        [-KH[3][0], -KH[3][1], -KH[3][2], 1 - KH[3][3]]
+      ];
+      const PUpdated = matmul(I_KH, P);
+
+      state.ekfState = xUpdated;
+      state.ekfCovariance = PUpdated;
+    }
+
+    // ============================================
+    // Measurement Generation
+    // ============================================
+
+    function generateMeasurement() {
+      const x = state.trueState[0];
+      const y = state.trueState[1];
+      const noise_x = (Math.random() - 0.5) * config.R * 2;
+      const noise_y = (Math.random() - 0.5) * config.R * 2;
+      return [x + noise_x, y + noise_y];
+    }
+
+    // ============================================
+    // Statistics
+    // ============================================
+
+    function updateStats() {
+      const trueX = state.trueState[0];
+      const trueY = state.trueState[1];
+      const trueVx = state.trueState[2];
+      const trueVy = state.trueState[3];
+
+      const estX = state.ekfState[0];
+      const estY = state.ekfState[1];
+      const estVx = state.ekfState[2];
+      const estVy = state.ekfState[3];
+
+      state.posError = Math.sqrt((trueX - estX) ** 2 + (trueY - estY) ** 2);
+      state.velError = Math.sqrt((trueVx - estVx) ** 2 + (trueVy - estVy) ** 2);
+
+      document.getElementById('posError').textContent = state.posError.toFixed(2);
+      document.getElementById('velError').textContent = state.velError.toFixed(3);
+      document.getElementById('kalmanGain').textContent = state.kalmanGainNorm.toFixed(4);
+      document.getElementById('innovation').textContent = state.innovation.toFixed(2);
+    }
+
+    // ============================================
+    // Simulation Loop
+    // ============================================
+
+    function simulationStep() {
+      if (!config.running) return;
+
+      // Update true state
+      updateTrueState();
+      state.trueHistory.push([state.trueState[0], state.trueState[1]]);
+
+      // Predict
+      predictEKF();
+
+      // Generate and process measurements
+      config.time += config.dt;
+      const measurementInterval = 1.0 / config.measurementRate;
+      if (config.time - state.lastMeasurementTime >= measurementInterval) {
+        const z = generateMeasurement();
+        state.measurementHistory.push(z);
+        updateEKF(z);
+        state.lastMeasurementTime = config.time;
+      }
+
+      // Record estimate
+      state.estimateHistory.push([state.ekfState[0], state.ekfState[1]]);
+      state.covarianceHistory.push(state.ekfCovariance.map(row => [...row]));
+
+      // Limit history length
+      const maxHistory = 500;
+      if (state.trueHistory.length > maxHistory) state.trueHistory.shift();
+      if (state.measurementHistory.length > maxHistory) state.measurementHistory.shift();
+      if (state.estimateHistory.length > maxHistory) state.estimateHistory.shift();
+      if (state.covarianceHistory.length > maxHistory) state.covarianceHistory.shift();
+
+      updateStats();
+    }
+
+    // ============================================
+    // Rendering
+    // ============================================
+
+    function drawCovariance() {
+      const ctx = config.canvas.getContext('2d');
+      const P = state.ekfCovariance;
+      const x = state.ekfState[0];
+      const y = state.ekfState[1];
+
+      // Extract position covariance
+      const Pxx = P[0][0];
+      const Pyy = P[1][1];
+      const Pxy = P[0][1];
+
+      // Eigenvalues and eigenvectors
+      const trace = Pxx + Pyy;
+      const det = Pxx * Pyy - Pxy * Pxy;
+      const lambda1 = trace / 2 + Math.sqrt((trace / 2) ** 2 - det);
+      const lambda2 = trace / 2 - Math.sqrt((trace / 2) ** 2 - det);
+
+      const sigmas = [Math.sqrt(Math.max(0, lambda1)), Math.sqrt(Math.max(0, lambda2))];
+      const angle = 0.5 * Math.atan2(2 * Pxy, Pxx - Pyy);
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.strokeStyle = 'rgba(44, 111, 187, 0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, sigmas[0] * 2.5, sigmas[1] * 2.5, 0, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(44, 111, 187, 0.08)';
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawTrajectories() {
+      const ctx = config.canvas.getContext('2d');
+
+      // True state
+      if (config.visibility.true && state.trueHistory.length > 1) {
+        ctx.strokeStyle = 'rgba(200, 200, 200, 0.6)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(state.trueHistory[0][0], state.trueHistory[0][1]);
+        for (let i = 1; i < state.trueHistory.length; i++) {
+          ctx.lineTo(state.trueHistory[i][0], state.trueHistory[i][1]);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // EKF estimate
+      if (config.visibility.estimate && state.estimateHistory.length > 1) {
+        ctx.strokeStyle = '#2c6fbb';
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(state.estimateHistory[0][0], state.estimateHistory[0][1]);
+        for (let i = 1; i < state.estimateHistory.length; i++) {
+          ctx.lineTo(state.estimateHistory[i][0], state.estimateHistory[i][1]);
+        }
+        ctx.stroke();
+      }
+
+      // Measurements
+      if (config.visibility.measurements) {
+        ctx.fillStyle = '#ff6b6b';
+        for (const z of state.measurementHistory) {
+          ctx.beginPath();
+          ctx.arc(z[0], z[1], 2.5, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+      }
+
+      // Covariance ellipse
+      if (config.visibility.covariance) {
+        drawCovariance();
+      }
+
+      // Current positions
+      ctx.fillStyle = 'rgba(200, 200, 200, 0.8)';
+      ctx.beginPath();
+      ctx.arc(state.trueState[0], state.trueState[1], 4, 0, 2 * Math.PI);
+      ctx.fill();
+
+      ctx.fillStyle = '#2c6fbb';
+      ctx.beginPath();
+      ctx.arc(state.ekfState[0], state.ekfState[1], 3.5, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+
+    function render() {
+      const ctx = config.canvas.getContext('2d');
+
+      // Clear
+      ctx.fillStyle = '#1a2332';
+      ctx.fillRect(0, 0, config.width, config.height);
+
+      // Grid
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < config.width; i += 50) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, config.height);
+        ctx.stroke();
+      }
+      for (let j = 0; j < config.height; j += 50) {
+        ctx.beginPath();
+        ctx.moveTo(0, j);
+        ctx.lineTo(config.width, j);
+        ctx.stroke();
+      }
+
+      drawTrajectories();
+    }
+
+    // ============================================
+    // Main Animation Loop
+    // ============================================
+
+    function animate() {
+      simulationStep();
+      render();
+      requestAnimationFrame(animate);
+    }
+
+    // ============================================
+    // Event Listeners
+    // ============================================
+
+    document.getElementById('qSlider').addEventListener('input', (e) => {
+      config.Q = parseFloat(e.target.value);
+      document.getElementById('qValue').textContent = config.Q.toFixed(2);
+    });
+
+    document.getElementById('rSlider').addEventListener('input', (e) => {
+      config.R = parseFloat(e.target.value);
+      document.getElementById('rValue').textContent = config.R.toFixed(2);
+    });
+
+    document.getElementById('rateSlider').addEventListener('input', (e) => {
+      config.measurementRate = parseInt(e.target.value);
+      document.getElementById('rateValue').textContent = e.target.value + ' Hz';
+    });
+
+    document.getElementById('playBtn').addEventListener('click', () => {
+      config.running = true;
+      document.getElementById('playBtn').classList.add('active');
+      document.getElementById('pauseBtn').classList.remove('active');
+    });
+
+    document.getElementById('pauseBtn').addEventListener('click', () => {
+      config.running = false;
+      document.getElementById('pauseBtn').classList.add('active');
+      document.getElementById('playBtn').classList.remove('active');
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      config.time = 0;
+      state.trueState = [250, 200, 0.5, 0.3];
+      state.ekfState = [250, 200, 0.5, 0.3];
+      state.ekfCovariance = [
+        [5, 0, 0, 0],
+        [0, 5, 0, 0],
+        [0, 0, 0.1, 0],
+        [0, 0, 0, 0.1]
+      ];
+      state.trueHistory = [];
+      state.measurementHistory = [];
+      state.estimateHistory = [];
+      state.covarianceHistory = [];
+      state.lastMeasurementTime = 0;
+    });
+
+    // Toggle visibility
+    const toggleButtons = document.querySelectorAll('[id^="toggle"]');
+    toggleButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const layer = btn.dataset.layer;
+        config.visibility[layer] = !config.visibility[layer];
+        btn.classList.toggle('active');
+      });
+    });
+
+    // Navigation toggle
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    if (navToggle) {
+      navToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('open');
+      });
+    }
+
+    // Scroll effect on nav
+    window.addEventListener('scroll', () => {
+      const nav = document.getElementById('nav');
+      if (window.scrollY > 0) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    });
+
+    // Initialize canvas
+    function resizeCanvas() {
+      const rect = config.canvas.getBoundingClientRect();
+      config.width = rect.width * window.devicePixelRatio || rect.width;
+      config.canvas.width = config.width;
+      config.canvas.height = config.height * window.devicePixelRatio || config.height;
+      const ctx = config.canvas.getContext('2d');
+      ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+      config.width /= (window.devicePixelRatio || 1);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Start animation
+    animate();
+  </script>
+
+</body>
+</html>

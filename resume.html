@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume — Stephen Jenkins</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">SJ<span>.</span></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#projects">Projects</a></li>
+        <li><a href="resume.html" class="active">Resume</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <section class="demo-hero">
+    <div class="demo-hero-inner">
+      <a href="index.html" class="back-link">&larr; Home</a>
+      <h1>Resume</h1>
+      <p>Spacecraft navigation engineer with 10+ years designing, implementing, and testing autonomous onboard navigation systems for NASA flagship missions.</p>
+      <a href="assets/Jenkins_Resume.pdf" class="btn btn-primary" style="margin-top:1.5rem;" target="_blank">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download PDF
+      </a>
+    </div>
+  </section>
+
+  <!-- Experience -->
+  <section class="section">
+    <div class="section-inner">
+      <p class="section-label">Experience</p>
+      <h2 class="section-title">Professional Background</h2>
+      <div class="timeline" style="margin-top: 2rem;">
+
+        <div class="timeline-item fade-in">
+          <div class="timeline-date">July 2015 — Present</div>
+          <h3>Senior Professional Staff</h3>
+          <h4>JHU Applied Physics Laboratory — Space Exploration Sector</h4>
+          <ul>
+            <li><strong>Electro-Optical Terrain Sensing Function Lead</strong> for the Mobility subsystem on NASA's Dragonfly mission to Titan. Led a team of four engineers through full lifecycle development of an onboard optical navigation algorithm for autonomous rotorcraft flight.</li>
+            <li>Managed software development using agile practices and CI/CD pipelines, delivering multiple tested code releases to the flight software baseline.</li>
+            <li>Architected a cross-domain software/firmware distributed algorithm spanning GN&amp;C, flight software, and firmware teams — optimizing resource utilization while maintaining algorithmic flexibility.</li>
+            <li><strong>Navigation Engineer</strong> for SMART Nav on NASA's DART mission. Designed and implemented the optical targeting algorithm that autonomously discriminated the 160-meter moon Dimorphos from the primary asteroid Didymos during the terminal approach phase, contributing to mission success in September 2022.</li>
+            <li><strong>Principal Investigator</strong> for Autonomous Station Keeping research — designing onboard guidance and navigation algorithms for spacecraft operating in chaotic dynamical environments near small bodies.</li>
+            <li>Architected a modular, extensible software framework for rapid analysis of mission concepts requiring autonomous onboard navigation and trajectory planning.</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Education -->
+  <section class="section section-alt">
+    <div class="section-inner">
+      <p class="section-label">Education</p>
+      <h2 class="section-title">Academic Background</h2>
+      <div class="timeline" style="margin-top: 2rem;">
+        <div class="timeline-item fade-in">
+          <div class="timeline-date">August 2018</div>
+          <h3>M.S. Applied Mathematics</h3>
+          <h4>Johns Hopkins University — Baltimore, MD</h4>
+        </div>
+        <div class="timeline-item fade-in">
+          <div class="timeline-date">June 2015</div>
+          <h3>B.E. Computer Engineering</h3>
+          <h4>Dartmouth College, Thayer School of Engineering — Hanover, NH</h4>
+        </div>
+        <div class="timeline-item fade-in">
+          <div class="timeline-date">May 2014</div>
+          <h3>B.A. Mathematics</h3>
+          <h4>Colby College — Waterville, ME</h4>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Publications -->
+  <section class="section">
+    <div class="section-inner">
+      <p class="section-label">Publications</p>
+      <h2 class="section-title">Selected Papers</h2>
+      <div style="margin-top: 2rem;">
+        <div class="mission-card fade-in" style="margin-bottom: 1rem;">
+          <h3 style="font-size: 1rem;">"Preliminary Flight Testing of Dragonfly's Electro-optical Terrain Sensing Function"</h3>
+          <p style="font-size: 0.88rem; color: var(--muted); margin-top: 0.5rem;">Isaac R. Witte, <strong>Steve N. Jenkins</strong>, Justin R. Thomas, Samuel E. Bibelhauser, Nishant L. Mehta.<br>3rd Space Imaging Workshop, Atlanta, Georgia. October 2022.</p>
+        </div>
+        <div class="mission-card fade-in" style="margin-bottom: 1rem;">
+          <h3 style="font-size: 1rem;">"No GPS? No Problem! Exploring the Dunes of Titan with Dragonfly Using Visual Odometry"</h3>
+          <p style="font-size: 0.88rem; color: var(--muted); margin-top: 0.5rem;">Isaac R. Witte, Dmitriy L. Bekker, Michelle H. Chen, Thomas B. Criss, <strong>Steve N. Jenkins</strong>, Nishant L. Mehta, Carolyn A. Sawyer, Jason A. Stipes and Justin R. Thomas.<br>AIAA 2019-1177. AIAA SciTech 2019 Forum. January 2019.</p>
+        </div>
+        <div class="mission-card fade-in">
+          <h3 style="font-size: 1rem;">"Small-Body Maneuvering Autonomous Real-Time Navigation (SMART Nav)"</h3>
+          <p style="font-size: 0.88rem; color: var(--muted); margin-top: 0.5rem;">Chen, M., et al. (including <strong>S. Jenkins</strong>).<br>Advances in the Astronautical Sciences 164 (2018): 347-359.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills (compact) -->
+  <section class="section section-alt">
+    <div class="section-inner">
+      <p class="section-label">Core Competencies</p>
+      <h2 class="section-title">Technical Skills</h2>
+      <div class="skills-grid" style="margin-top: 2rem;">
+        <div class="skill-group">
+          <h4>Navigation &amp; GN&amp;C</h4>
+          <ul>
+            <li>Optical Navigation &amp; Image Processing</li>
+            <li>State Estimation (EKF, UKF)</li>
+            <li>Orbit Determination &amp; Propagation</li>
+            <li>Autonomous GN&amp;C Algorithm Design</li>
+            <li>Covariance Analysis &amp; Monte Carlo Methods</li>
+            <li>NAIF SPICE Toolkit</li>
+          </ul>
+        </div>
+        <div class="skill-group">
+          <h4>Software &amp; Tools</h4>
+          <ul>
+            <li>Python, MATLAB/Simulink</li>
+            <li>C/C++ (Embedded / Flight Software)</li>
+            <li>GitLab CI/CD &amp; Atlassian Suite</li>
+            <li>Agile / Continuous Integration</li>
+            <li>Software Architecture &amp; Design</li>
+            <li>Linux / Bash / Docker</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>&copy; 2026 Stephen Jenkins</p>
+  </footer>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 10));
+    document.getElementById('navToggle').addEventListener('click', () => document.getElementById('navLinks').classList.toggle('open'));
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
